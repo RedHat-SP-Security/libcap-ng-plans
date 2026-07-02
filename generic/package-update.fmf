@@ -1,0 +1,38 @@
+# used in
+# https://gitlab.com/redhat/centos-stream/rpms/libcap-ng
+
+summary: package update scenario
+
+execute:
+    how: tmt
+
+prepare:
+  - how: shell
+    order: 90
+    script:
+      # remove installed (tested) libcap-ng and any leftovers
+      - dnf -y remove '*libcap-ng*'
+      # install older libcap-ng
+      - dnf -y install libcap-ng --disablerepo test-artifacts
+
+discover:
+  - name: Pre_update_tests
+    how: fmf
+    url: https://github.com/RedHat-SP-Security/libcap-ng-tests
+    ref: master
+    test:
+      - /Sanity/smoke-test
+
+  - name: Update_libcap-ng_package
+    how: shell
+    tests:
+      - name: libcap-ng_update
+        test: dnf -y update '*libcap-ng*'
+        duration: 2m
+
+  - name: Post_update_tests
+    how: fmf
+    url: https://github.com/RedHat-SP-Security/libcap-ng-tests
+    ref: master
+    test:
+      - /Sanity/smoke-test
