@@ -10,10 +10,9 @@ prepare:
   - how: shell
     order: 90
     script:
-      # remove installed (tested) libcap-ng and any leftovers
-      - dnf -y remove '*libcap-ng*'
-      # install older libcap-ng
-      - dnf -y install libcap-ng --disablerepo test-artifacts
+      # downgrade to the compose version so the update step tests the upgrade path
+      # (remove is not possible because libcap-ng is a dependency of sudo)
+      - dnf -y downgrade '*libcap-ng*' --disablerepo test-artifacts
 
 discover:
   - name: Pre_update_tests
